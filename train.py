@@ -4,6 +4,7 @@ import numpy as np
 import argparse
 from DDQN import DDQN
 from utils import plot_learning_curve, create_directory
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 envpath = '/home/xgq/conda/envs/pytorch1.6/lib/python3.6/site-packages/cv2/qt/plugins/platforms'
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = envpath
 
@@ -28,9 +29,10 @@ def main():
         total_reward = 0
         done = False
         observation = env.reset()
+        observation = observation[0]
         while not done:
             action = agent.choose_action(observation, isTrain=True)
-            observation_, reward, done, info = env.step(action)
+            observation_, reward, done, info, _ = env.step(action)
             agent.remember(observation, action, reward, observation_, done)
             agent.learn()
             total_reward += reward
