@@ -3,6 +3,7 @@ import gym
 import numpy as np
 import argparse
 from DDQN import DDQN
+from eth_optimize import EthOptimize
 from utils import plot_learning_curve, create_directory
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 envpath = '/home/xgq/conda/envs/pytorch1.6/lib/python3.6/site-packages/cv2/qt/plugins/platforms'
@@ -19,6 +20,7 @@ args = parser.parse_args()
 
 def main():
     env = gym.make('LunarLander-v2')
+    # myenv: env = gym.make(EthOptimize)
     agent = DDQN(alpha=0.0003, state_dim=env.observation_space.shape[0], action_dim=env.action_space.n,
                  fc1_dim=256, fc2_dim=256, ckpt_dir=args.ckpt_dir, gamma=0.99, tau=0.005, epsilon=1.0,
                  eps_end=0.05, eps_dec=5e-4, max_size=1000000, batch_size=256)
