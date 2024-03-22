@@ -9,7 +9,6 @@ device = T.device("cuda:0" if T.cuda.is_available() else "cpu")
 
 
 class DeepQNetwork(nn.Module):
-    # 定义深度q网络的输入输出层面信息
     def __init__(self, alpha, state_dim, action_dim, fc1_dim, fc2_dim):
         super(DeepQNetwork, self).__init__()
 
