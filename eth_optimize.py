@@ -1,11 +1,18 @@
 import gymnasium as gym
 from gymnasium import spaces
 import numpy as np
+import pandas as pd
+import random
+
+data_dir = "/Users/apple/Documents/GitHub/Double-DQN/traindata.csv"
+df = pd.read_csv(data_dir)
+
+
 
 class EthOptimize(gym.Env):
     def __init__(self):
-        self.upper_bsize = 300000
-        self.lower_bsize = 150000
+        self.upper_bsize = 30000000
+        self.lower_bsize = 15000000
         self.upper_btime = 25
         self.lower_btime = 5
         self.action_space = spaces.Discrete(5) # 0, 1, 2, 3, 4
@@ -24,10 +31,10 @@ class EthOptimize(gym.Env):
             x=x
             y=y
         elif action == 1:
-            x = x + 1500
+            x = x + 1500000
             y = y
         elif action == 2:
-            x = x - 1500
+            x = x - 1500000
             y = y
         elif action == 3:
             x = x
@@ -53,7 +60,12 @@ class EthOptimize(gym.Env):
 
     def reset(self, seed=None):
         # state初始化，回到一个初始状态，为下一个周期准备
-        self.state = np.array([151500, 7])
+        iloc_num = random.randint(0, 230)
+        # print(iloc_num)
+        blocksize = df['gaslimit'].iloc[iloc_num]
+        period = df['period'].iloc[iloc_num]
+        # print(type(blocksize), type(period))
+        self.state = np.array([blocksize, period])
         return self.state, {} 
     
     def render(self, mode='human'):
@@ -62,7 +74,8 @@ class EthOptimize(gym.Env):
 
 
 if __name__ == "__main__":
-    from stable_baselines3.common.env_checker import check_env 
-    # 如果你安装了pytorch，则使用上面的，如果你安装了tensorflow，则使用from stable_baselines.common.env_checker import check_env
     env = EthOptimize()
-    check_env(env)
+    state, info = env.reset()
+    print("state: ", state)
+    state_, reward, done, info = env.step(2)
+    print("Action: 2 | next state: ", state_)
