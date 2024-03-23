@@ -1,5 +1,5 @@
-import gym
-from gym import spaces
+import gymnasium as gym
+from gymnasium import spaces
 import numpy as np
 
 class EthOptimize(gym.Env):
@@ -9,7 +9,11 @@ class EthOptimize(gym.Env):
         self.upper_btime = 25
         self.lower_btime = 5
         self.action_space = spaces.Discrete(5) # 0, 1, 2, 3, 4
-        self.observation_space = spaces.Box(np.array([self.lower_bsize, self.upper_bsize]), np.array([self.lower_btime, self.upper_btime]))
+        self.observation_space = spaces.Box(
+            low=np.array([self.lower_bsize, self.lower_btime], dtype=np.float32),
+            high=np.array([self.upper_bsize, self.upper_btime], dtype=np.float32),
+            dtype=np.float32
+        )
         self.state = None
         self.counts = 0
 
@@ -47,16 +51,18 @@ class EthOptimize(gym.Env):
         
         return self.state, reward, done, {}
 
-    def reset(self):
+    def reset(self, seed=None):
         # state初始化，回到一个初始状态，为下一个周期准备
         self.state = np.array([151500, 7])
-        return self.state 
+        return self.state, {} 
+    
+    def render(self, mode='human'):
+        # Implement rendering logic
+        pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    from stable_baselines3.common.env_checker import check_env 
+    # 如果你安装了pytorch，则使用上面的，如果你安装了tensorflow，则使用from stable_baselines.common.env_checker import check_env
     env = EthOptimize()
-    env.reset()
-    env.step(2)
-    print(env.state)
-    env.step(4)
-    print(env.state)
+    check_env(env)
