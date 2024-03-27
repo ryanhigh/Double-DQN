@@ -3,17 +3,75 @@ from gymnasium import spaces
 import numpy as np
 import pandas as pd
 import random
+import math
+from clean_data import Final_Dataframe
 
-data_dir = "/Users/apple/Documents/GitHub/Double-DQN/traindata.csv"
-df = pd.read_csv(data_dir)
+df = Final_Dataframe()
 
+
+def getPerformance(x, y):
+    row_indices = df.index[(df['gaslimit'] == x) & (df['period(s)'] == y)].tolist()
+    if not bool(row_indices):
+        print(row_indices, x, y)
+    tps = df['tps(tx/s)'].iloc[row_indices].item()
+    latency = df['latency(ms)'].iloc[row_indices].item()
+    perform = np.array([tps, latency])
+    return perform
+
+
+def getReward(perform_, perform, perform0):
+    # get delta value
+    gamma = 1
+    T_0, L_0 = perform0
+    T_t, L_t = perform_
+    T_t_1, L_t_1 = perform
+
+    delta_T_orig = (T_t - T_0) / T_0
+    delta_T_step = (T_t - T_t_1) / T_t_1
+    delta_L_orig = (- L_t + L_0) / L_0
+    delta_L_step = (- L_t + L_t_1) / L_t_1
+
+    # compute reward value rT and rL
+    if delta_T_step > 0:
+        rT = math.exp(gamma * delta_T_orig * delta_T_step)
+    else:
+        rT = - math.exp(- gamma * delta_T_orig * delta_T_step)
+    
+    if delta_L_step > 0:
+        rL = - math.exp(gamma * delta_L_orig * delta_L_step)
+    else:
+        rL = math.exp(- gamma * delta_L_orig * delta_L_step)
+    reward = 0.7 * rT + 0.3 * rL
+    return reward
+
+
+def getReward2(perform_, perform, perform0):
+    T_0, L_0 = perform0
+    T_t, L_t = perform_
+    T_t_1, L_t_1 = perform
+    if T_0 < T_t and T_t_1 < T_t:
+        rT = 100
+    elif T_0 < T_t <= T_t_1:
+        rT = 0.1
+    elif T_0 >= T_t:
+        rT = -50
+
+    if L_0 < L_t and L_t_1 < L_t:
+        rL = -100
+    elif L_0 < L_t <= L_t_1:
+        rL = -10
+    elif L_0 >= L_t:
+        rL = 50
+
+    reward = 0.7*rT + 0.3*rL
+    return reward
 
 
 class EthOptimize(gym.Env):
     def __init__(self):
         self.upper_bsize = 30000000
         self.lower_bsize = 15000000
-        self.upper_btime = 25
+        self.upper_btime = 15
         self.lower_btime = 5
         self.action_space = spaces.Discrete(5) # 0, 1, 2, 3, 4
         self.observation_space = spaces.Box(
@@ -23,18 +81,22 @@ class EthOptimize(gym.Env):
         )
         self.state = None
         self.counts = 0
+        self.performance0 = None
 
     def step(self, action):
         assert self.action_space.contains(action), "%r (%s) invalid"%(action, type(action))
         x, y = self.state
+        # 记录当前性能
+        perform = getPerformance(x, y)
+
         if action == 0:
             x=x
             y=y
         elif action == 1:
-            x = x + 1500000
+            x = x + 150000
             y = y
         elif action == 2:
-            x = x - 1500000
+            x = x - 150000
             y = y
         elif action == 3:
             x = x
@@ -45,37 +107,28 @@ class EthOptimize(gym.Env):
         self.state = np.array([x, y])
         self.counts += 1
 
-        done = None # justify border 
-        done = bool(done)
-
-        reward = None
-        '''
-        if not done:
-            reward -= 0.1
+        border = (x <= self.lower_bsize or x >= self.upper_bsize) or (y < self.lower_btime or y > self.upper_btime)  # justify border
+        if not border:
+            perform_ = getPerformance(x, y)
+            done = bool(border) or np.array_equal(perform, perform_)
         else:
-            if ...
-        '''
-        
-        return self.state, reward, done, {}
+            perform_ = perform
+            done = bool(border)
+        truncated = False
+
+        reward = getReward(perform_, perform, self.performance0)
+        return self.state, reward, done, {'step_num: ', self.counts}, truncated
 
     def reset(self, seed=None):
         # state初始化，回到一个初始状态，为下一个周期准备
-        iloc_num = random.randint(0, 230)
+        iloc_num = random.randint(10, 1000)
         # print(iloc_num)
-        blocksize = df['gaslimit'].iloc[iloc_num]
-        period = df['period'].iloc[iloc_num]
+        blocksize = df['gaslimit'].iloc[iloc_num].item()
+        period = df['period(s)'].iloc[iloc_num].item()
         # print(type(blocksize), type(period))
+        tps = df['tps(tx/s)'].iloc[iloc_num].item()
+        latency = df['latency(ms)'].iloc[iloc_num].item()
+        self.performance0 = np.array([tps, latency])
         self.state = np.array([blocksize, period])
-        return self.state, {} 
-    
-    def render(self, mode='human'):
-        # Implement rendering logic
-        pass
-
-
-if __name__ == "__main__":
-    env = EthOptimize()
-    state, info = env.reset()
-    print("state: ", state)
-    state_, reward, done, info = env.step(2)
-    print("Action: 2 | next state: ", state_)
+        self.counts = 0
+        return self.state, {}
