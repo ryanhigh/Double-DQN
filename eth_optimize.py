@@ -33,7 +33,7 @@ def getReward(perform_, perform, perform0):
 
     # compute reward value rT and rL
     if delta_T_step > 0:
-        rT = math.exp(gamma * delta_T_orig * delta_T_step)
+        rT = math.exp(gamma  * delta_T_orig * delta_T_step)
     else:
         rT = - math.exp(- gamma * delta_T_orig * delta_T_step)
     
@@ -45,25 +45,9 @@ def getReward(perform_, perform, perform0):
     return reward
 
 
-def getReward2(perform_, perform, perform0):
-    T_0, L_0 = perform0
-    T_t, L_t = perform_
-    T_t_1, L_t_1 = perform
-    if T_0 < T_t and T_t_1 < T_t:
-        rT = 100
-    elif T_0 < T_t <= T_t_1:
-        rT = 0.1
-    elif T_0 >= T_t:
-        rT = -50
-
-    if L_0 < L_t and L_t_1 < L_t:
-        rL = -100
-    elif L_0 < L_t <= L_t_1:
-        rL = -10
-    elif L_0 >= L_t:
-        rL = 50
-
-    reward = 0.7*rT + 0.3*rL
+def getReward2(perform_):
+    tps, delay = perform_
+    reward = tps / delay
     return reward
 
 
@@ -73,7 +57,7 @@ class EthOptimize(gym.Env):
         self.lower_bsize = 15000000
         self.upper_btime = 15
         self.lower_btime = 5
-        self.action_space = spaces.Discrete(5) # 0, 1, 2, 3, 4
+        self.action_space = spaces.Discrete(5)# 0, 1, 2, 3, 4
         self.observation_space = spaces.Box(
             low=np.array([self.lower_bsize, self.lower_btime], dtype=np.float32),
             high=np.array([self.upper_bsize, self.upper_btime], dtype=np.float32),
@@ -116,7 +100,7 @@ class EthOptimize(gym.Env):
             done = bool(border)
         truncated = False
 
-        reward = getReward(perform_, perform, self.performance0)
+        reward = getReward2(perform_)
         return self.state, reward, done, {'step_num: ', self.counts}, truncated
 
     def reset(self, seed=None):
