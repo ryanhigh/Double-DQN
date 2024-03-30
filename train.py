@@ -4,26 +4,26 @@ import numpy as np
 import argparse
 from DDQN import DDQN
 from eth_optimize import EthOptimize
-from Mysim import Car2DEnv
+# from Mysim import Car2DEnv
 from utils import plot_learning_curve, create_directory
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 envpath = '/home/xgq/conda/envs/pytorch1.6/lib/python3.6/site-packages/cv2/qt/plugins/platforms'
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = envpath
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--max_episodes', type=int, default=500)
+parser.add_argument('--max_episodes', type=int, default=20000)
 parser.add_argument('--ckpt_dir', type=str, default='./test/DDQN/')
-parser.add_argument('--reward_path', type=str, default='./test/avg_reward.png')
-parser.add_argument('--epsilon_path', type=str, default='./test/epsilon.png')
+parser.add_argument('--reward_path', type=str, default='./test/EP20000avg_reward.png')
+parser.add_argument('--epsilon_path', type=str, default='./test/EP20000epsilon.png')
 
 args = parser.parse_args()
 
 
 def main():
     # env = gym.make('LunarLander-v2')
-    env = Car2DEnv()
+    env = EthOptimize()
     agent = DDQN(alpha=0.0003, state_dim=env.observation_space.shape[0], action_dim=env.action_space.n,
-                 fc1_dim=256, fc2_dim=256, ckpt_dir=args.ckpt_dir, gamma=0.99, tau=0.005, epsilon=1.0,
+                 fc1_dim=256, fc2_dim=256, ckpt_dir=args.ckpt_dir, gamma=0.9, tau=0.005, epsilon=1.0,
                  eps_end=0.05, eps_dec=5e-4, max_size=1000000, batch_size=256)
     create_directory(args.ckpt_dir, sub_dirs=['Q_eval', 'Q_target'])
     total_rewards, avg_rewards, eps_history = [], [], []
@@ -58,6 +58,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # env = EthOptimize()
+    # env = Car2DEnv()
     # print("action_dim", env.action_space.n)
     # print("state_dim", env.observation_space.shape[0])

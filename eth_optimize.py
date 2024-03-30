@@ -91,16 +91,27 @@ class EthOptimize(gym.Env):
         self.state = np.array([x, y])
         self.counts += 1
 
+        max_tps = df['tps(tx/s)'].max()
         border = (x <= self.lower_bsize or x >= self.upper_bsize) or (y < self.lower_btime or y > self.upper_btime)  # justify border
-        if not border:
-            perform_ = getPerformance(x, y)
-            done = bool(border) or np.array_equal(perform, perform_)
+        if border:
+            done = True
         else:
-            perform_ = perform
-            done = bool(border)
+            perform_ = getPerformance(x, y)
+            tps_current = perform_[0]
+            if tps_current == max_tps:
+                done = True
+            else:
+                done = False
+
         truncated = False
 
-        reward = getReward2(perform_)
+        if not done:
+            reward = 0
+        else:
+            if border:
+                reward  = 0
+            else:    
+                reward = 10 * getReward2(perform_)
         return self.state, reward, done, {'step_num: ', self.counts}, truncated
 
     def reset(self, seed=None):
@@ -116,3 +127,12 @@ class EthOptimize(gym.Env):
         self.state = np.array([blocksize, period])
         self.counts = 0
         return self.state, {}
+
+
+# if __name__ == "__main__":
+#     env = EthOptimize()
+#     state = env.reset()
+#     state = state[0]
+#     x, y  = state
+#     tps, latency = getPerformance(x, y)
+#     print(tps/latency)

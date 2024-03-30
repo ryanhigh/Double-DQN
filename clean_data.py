@@ -3,7 +3,7 @@ import argparse
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--dfpt', type=str, default='/Users/apple/Documents/GitHub/Double-DQN/result2.csv')
+parser.add_argument('--dfpt', type=str, default='/home/nlsde/RLmodel/Double-DQN/result2.csv')
 
 args = parser.parse_args()
 
