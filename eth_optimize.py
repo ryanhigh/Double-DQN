@@ -95,6 +95,7 @@ class EthOptimize(gym.Env):
         border = (x <= self.lower_bsize or x >= self.upper_bsize) or (y < self.lower_btime or y > self.upper_btime)  # justify border
         if border:
             done = True
+            perform_ = perform
         else:
             perform_ = getPerformance(x, y)
             tps_current = perform_[0]
@@ -105,13 +106,14 @@ class EthOptimize(gym.Env):
 
         truncated = False
 
-        if not done:
-            reward = 0
-        else:
-            if border:
-                reward  = 0
-            else:    
-                reward = 10 * getReward2(perform_)
+        # if not done:
+        #     reward = 0
+        # else:
+        #     if border:
+        #         reward  = 0
+        #     else:    
+        #         reward = 10 * getReward2(perform_)
+        reward = getReward(perform_, perform, self.performance0)
         return self.state, reward, done, {'step_num: ', self.counts}, truncated
 
     def reset(self, seed=None):
