@@ -104,8 +104,6 @@ class EthOptimize(gym.Env):
             else:
                 done = False
 
-        truncated = False
-
         # if not done:
         #     reward = 0
         # else:
@@ -114,7 +112,7 @@ class EthOptimize(gym.Env):
         #     else:    
         #         reward = 10 * getReward2(perform_)
         reward = getReward(perform_, perform, self.performance0)
-        return self.state, reward, done, {'step_num: ', self.counts}, truncated
+        return self.state, reward, done, {}, perform_
 
     def reset(self, seed=None):
         # state初始化，回到一个初始状态，为下一个周期准备
@@ -129,6 +127,11 @@ class EthOptimize(gym.Env):
         self.state = np.array([blocksize, period])
         self.counts = 0
         return self.state, {}
+    
+    def SaveState(self, blocksize, internal):
+        self.state = np.array([blocksize, internal])
+        self.performance0 = getPerformance(blocksize, internal)
+        return self.state
 
 
 # if __name__ == "__main__":
