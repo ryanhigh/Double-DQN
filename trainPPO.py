@@ -18,7 +18,7 @@ def ppo_train():
     env = EthOptimize()
     agent = PPO(state_dim=env.observation_space.shape[0], action_dim=env.action_space.n,lr_actor=0.0003, lr_critic=0.001, gamma=0.99, K_epochs=80, eps_clip=0.2)
     max_ep_len = 100                                  # max timesteps in one episode
-    max_training_timesteps = int(3e4)   # break training loop if timeteps > max_training_timesteps
+    max_training_timesteps = int(8e4)   # break training loop if timeteps > max_training_timesteps
     update_timestep = max_ep_len * 4                  # update policy every n timesteps
     time_step = 0
     i_episodes = 0

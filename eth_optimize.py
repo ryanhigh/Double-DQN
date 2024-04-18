@@ -104,14 +104,14 @@ class EthOptimize(gym.Env):
             else:
                 done = False
 
-        # if not done:
-        #     reward = 0
-        # else:
-        #     if border:
-        #         reward  = 0
-        #     else:    
-        #         reward = 10 * getReward2(perform_)
-        reward = getReward(perform_, perform, self.performance0)
+        if not done:
+            reward = 0
+        else:
+            if border:
+                reward  = -0.5
+            else:    
+                reward = 10 * getReward2(perform_)
+        # reward = getReward(perform_, perform, self.performance0)
         return self.state, reward, done, {}, perform_
 
     def reset(self, seed=None):

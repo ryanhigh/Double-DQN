@@ -22,10 +22,12 @@ def create_directory(path: str, sub_dirs: list):
             print(path + sub_dir + ' create successfully!')
 
 
-def plot_validate_curve(episodes, records, records2, title, ylabel, figure_file):
+def plot_validate_curve(episodes, baseline, records, records2, title, ylabel, figure_file):
     plt.figure()
-    plt.plot(episodes, records, linestyle='-', color='r', label='original')
-    plt.plot(episodes, records2, linestyle='-', color='g', label='optimized')
+    plt.plot(episodes, records, linestyle=':', linewidth = 2, color='r', label='ppo')
+    plt.plot(episodes, records2, linestyle='--', linewidth = 2, color='y', label='ddqn')
+    plt.plot(episodes, baseline, linestyle='-', linewidth = 2, color='c', label='baseline')
+    plt.legend()
     plt.title(title)
     plt.xlabel('episode')
     plt.ylabel(ylabel)

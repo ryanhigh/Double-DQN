@@ -11,9 +11,9 @@ os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = envpath
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--max_episodes', type=int, default=1000)
-parser.add_argument('--ckpt_dir', type=str, default='./validate/')
-parser.add_argument('--reward_path', type=str, default='./validate/ddqn_avg_reward.png')
-parser.add_argument('--epsilon_path', type=str, default='./validate/ddqn_epsilon.png')
+parser.add_argument('--ckpt_dir', type=str, default='./Val_n_base/')
+parser.add_argument('--reward_path', type=str, default='./Val_n_base/ddqn_avg_reward.png')
+parser.add_argument('--epsilon_path', type=str, default='./Val_n_base/ddqn_epsilon.png')
 
 args = parser.parse_args()
 
