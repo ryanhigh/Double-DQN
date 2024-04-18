@@ -11,14 +11,14 @@ os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = envpath
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--max_episodes', type=int, default=1000)
-parser.add_argument('--ckpt_dir', type=str, default='./testlunar/DDQN/')
-parser.add_argument('--reward_path', type=str, default='./testlunar/EP1000avg_reward.png')
-parser.add_argument('--epsilon_path', type=str, default='./testlunar/EP1000epsilon.png')
+parser.add_argument('--ckpt_dir', type=str, default='./validate/')
+parser.add_argument('--reward_path', type=str, default='./validate/ddqn_avg_reward.png')
+parser.add_argument('--epsilon_path', type=str, default='./validate/ddqn_epsilon.png')
 
 args = parser.parse_args()
 
 
-def main():
+def ddqn_train(max_episodes):
     # env = gym.make('LunarLander-v2')
     env = EthOptimize()
     agent = DDQN(alpha=0.0003, state_dim=env.observation_space.shape[0], action_dim=env.action_space.n,
@@ -27,7 +27,7 @@ def main():
     create_directory(args.ckpt_dir, sub_dirs=['Q_eval', 'Q_target'])
     total_rewards, avg_rewards, eps_history = [], [], []
 
-    for episode in range(args.max_episodes):
+    for episode in range(max_episodes):
         total_reward = 0
         done = False
         observation = env.reset()
@@ -51,12 +51,13 @@ def main():
             agent.save_models(episode + 1)
 
     episodes = [i for i in range(args.max_episodes)]
-    plot_learning_curve(episodes, avg_rewards, 'Reward', 'reward', args.reward_path)
-    plot_learning_curve(episodes, eps_history, 'Epsilon', 'epsilon', args.epsilon_path)
+    return episodes, avg_rewards
+    # plot_learning_curve(episodes, avg_rewards, 'Reward', 'reward', args.reward_path)
+    # plot_learning_curve(episodes, eps_history, 'Epsilon', 'epsilon', args.epsilon_path)
 
 
 if __name__ == '__main__':
-    main()
+    ddqn_train()
     # env = Car2DEnv()
     # print("action_dim", env.action_space.n)
     # print("state_dim", env.observation_space.shape[0])

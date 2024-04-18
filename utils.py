@@ -25,7 +25,7 @@ def create_directory(path: str, sub_dirs: list):
 def plot_validate_curve(episodes, records, records2, title, ylabel, figure_file):
     plt.figure()
     plt.plot(episodes, records, linestyle='-', color='r', label='original')
-    plt.plot(episodes, records, linestyle='-', color='g', label='optimized')
+    plt.plot(episodes, records2, linestyle='-', color='g', label='optimized')
     plt.title(title)
     plt.xlabel('episode')
     plt.ylabel(ylabel)

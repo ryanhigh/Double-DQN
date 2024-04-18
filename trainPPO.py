@@ -14,7 +14,7 @@ parser.add_argument('--epsilon_path', type=str, default='./PPO/EP10000epsilon.pn
 
 args = parser.parse_args()
 
-def main():
+def ppo_train():
     env = EthOptimize()
     agent = PPO(state_dim=env.observation_space.shape[0], action_dim=env.action_space.n,lr_actor=0.0003, lr_critic=0.001, gamma=0.99, K_epochs=80, eps_clip=0.2)
     max_ep_len = 100                                  # max timesteps in one episode
@@ -54,10 +54,11 @@ def main():
         print('EP:{} reward:{} avg_reward:{} time_step{}'.
               format(i_episodes, total_reward, avg_reward, time_step))
     
-    plot_learning_curve(episodes, avg_rewards, 'Reward', 'reward', args.reward_path)
+    # plot_learning_curve(episodes, avg_rewards, 'Reward', 'reward', args.reward_path)
+    return i_episodes, avg_rewards
 
 
 if __name__ == "__main__":
-    main()
+    ppo_train()
             
         
