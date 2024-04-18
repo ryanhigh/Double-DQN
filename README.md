@@ -1,5 +1,5 @@
 # Deep Reinforce Learning Algorithm with Blockchain Scaling
-This is a graduation project implemention, in which we give 2 optimization models, namely Double DQN and PPO based on previous work. We also define the environment for DRL in "./eth_optimize.py".
+This is a graduation project implementation, in which we give 2 optimization models, namely Double DQN and PPO based on previous work. We also define the environment for DRL in "./eth_optimize.py".
 ## DRL Env
 we focus on optimize the tps and latency of ethereum (clque network) with DRL. So we first clearify the base information of this RL env as in "./eth_optimize.py".
 More details are written in "Double-DQN/ethOptimize.ipynb"
@@ -8,7 +8,7 @@ To use our env, you can call code as followed.
 from eth_optimize import EthOptimize
 env = EthOptimize()
 ```
-## DRL model implemention
+## DRL model implementation
 ### 1. DQN
 in "myDQN.py" we simply build a DQN model and validate it with env=gym.make("lunar-landerv2") which shows a nice result. Then comes to DDQN
 ### 2. Double DQN
