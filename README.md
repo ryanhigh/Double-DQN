@@ -45,6 +45,17 @@ To validate that our models do have a optimization trend, we use simple reward f
 <div align=center><img src="./Val_n_base/avg_reward_r2v2_test1.png" width="400"></div> 
 <div align=center>tight constraint</div>
 
+further evaluation criteria analysis in ``eval_criteria_analyse.py``. In this part, we assume that everything have been done and get a csv file storing data. Than we utilize these data plot and analyse.  
+
+#### What can be done?
+* smooth the curve with ``colve`` func.
+for example, we first take windowsize as 500, and result is below
+<div align=center><img src="./Val_n_base/avg_reward_r2_vboth_wid500.png" width="400"></div> 
+
+* test the convergence value of each model, and calculate the optimization percentage.
+we show the convergence level in pic below. ppo gives a 27.76% higher and ddqn gives 16.84% higher.
+<div align=center><img src="./Val_n_base/avg_reward_r2_vboth_wid500_test2.png" width="400"></div> 
+
 ## The project is still in progress. To be continued.
 @copyright: Ryan Bq zhao  
 @author: ryanhigh  

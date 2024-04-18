@@ -1,5 +1,6 @@
 import os
 import gym
+import pandas as pd
 import numpy as np
 import argparse
 from PPO import PPO
@@ -11,10 +12,18 @@ from utils import plot_learning_curve, plot_validate_curve, create_directory
 parser = argparse.ArgumentParser()
 parser.add_argument('--max_episodes', type=int, default=5000)
 parser.add_argument('--ckpt_dir', type=str, default='./Val_n_base/')
-parser.add_argument('--reward_path', type=str, default='./Val_n_base/avg_reward_r2v2_test1.png')
+parser.add_argument('--reward_path', type=str, default='./Val_n_base/avg_reward_r2v2_test2.png')
 
 args = parser.parse_args()
 
+def StoreRewards(episodes, baseline, ddqn, ppo):
+    reward = pd.DataFrame({
+        'episodes': episodes,
+        'baseline': baseline,
+        'ddqn': ddqn,
+        'ppo': ppo
+    })
+    reward.to_csv(args.ckpt_dir + 'rewards.csv')
 
 def ComputeBaseline(ind):
     env = EthOptimize()
@@ -47,7 +56,7 @@ def main():
     baseline = ComputeBaseline(2)
     base_return = [baseline for _ in range(max_episodes)]
     plot_validate_curve(episodes, base_return, ppo_rewards, ddqn_rewards, 'Reward', 'rewards', args.reward_path)
-    
+    StoreRewards(episodes, base_return, ddqn_rewards, ppo_rewards)
 
 
 if __name__ == "__main__":
