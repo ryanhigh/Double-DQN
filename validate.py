@@ -15,7 +15,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--max_episodes', type=int, default=1000)
 parser.add_argument('--ckpt_dir', type=str, default='./Val_n_base/')
 parser.add_argument('--tps_path', type=str, default='./Val_n_base/ppo_10group_tps.png')
-parser.add_argument('--delay_path', type=str, default='./Val_n_base/delay_long.png')
+parser.add_argument('--delay_path', type=str, default='./Val_n_base/ppo_10group_delay.png')
 
 args = parser.parse_args()
 env = EthOptimize()
@@ -103,6 +103,7 @@ def group10():
     time = [i for i in range(21)]
     color = ['r', 'k', 'g', 'skyblue', 'b', 'y', 'c', 'teal', 'm', 'pink']
     plt.figure()
+    avg_tps, avg_delay = [], []
     for t in range(10):
         tps_l, delay_l = [], []
 
@@ -137,15 +138,22 @@ def group10():
                 observation = observation_
             print("finish_{}".format(i))
         
-        plt.plot(time, tps_l, linestyle='-', linewidth = 2, color=color[t], label='ppo_group_{}'.format(t))
+        plt.plot(time, delay_l, linestyle='-', linewidth = 2, color=color[t], label='ppo_group_{}'.format(t))
+        Optim_tps = (tps_l[20] - tps0) / tps0
+        Optim_delay = (delay0 - delay_l[20]) / delay0
+        avg_tps.append(Optim_tps)
+        avg_delay.append(Optim_delay)
     
     plt.legend()
-    plt.title('10 Group TPS')
+    plt.title('10 Group Latency')
     plt.xlabel('time')
-    plt.ylabel('tps')
+    plt.ylabel('latency')
 
     plt.show()
-    plt.savefig(args.tps_path)
+    plt.savefig(args.delay_path)
+    avgt = sum(avg_tps) / len(avg_tps)
+    avgd = sum(avg_delay) / len(avg_delay)
+    print("average tps optimization is {}% and average latency optimization is {}%".format(avgt*100, avgd*100))
 
 
 if __name__ == "__main__":
