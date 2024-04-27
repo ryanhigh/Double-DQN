@@ -37,6 +37,19 @@ def plot_validate_curve(episodes, baseline, records, records2, title, ylabel, fi
     plt.savefig(figure_file)
 
 
+def plot_validate_performance_curve(episodes, record1, record2, title, ylabel, figure_file):
+    plt.figure()
+    plt.plot(episodes, record1, linestyle=':', linewidth = 2, color='r', label='ddqn')
+    plt.plot(episodes, record2, linestyle='--', linewidth = 2, color='y', label='ppo')
+    plt.legend()
+    plt.title(title)
+    plt.xlabel('time')
+    plt.ylabel(ylabel)
+
+    plt.show()
+    plt.savefig(figure_file)
+
+
 def moving_average(interval, windowsize):
     window = np.ones(int(windowsize)) / float(windowsize)
     re = np.convolve(interval, window, 'same')

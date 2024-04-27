@@ -8,9 +8,9 @@ from utils import plot_learning_curve, create_directory
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--max_episodes', type=int, default=10000)
-parser.add_argument('--ckpt_dir', type=str, default='./PPO/')
-parser.add_argument('--reward_path', type=str, default='./PPO/EP10000avg_reward.png')
-parser.add_argument('--epsilon_path', type=str, default='./PPO/EP10000epsilon.png')
+parser.add_argument('--ckpt_dir', type=str, default='./Val_n_base/')
+# parser.add_argument('--reward_path', type=str, default='./PPO/EP10000avg_reward.png')
+# parser.add_argument('--epsilon_path', type=str, default='./PPO/EP10000epsilon.png')
 
 args = parser.parse_args()
 
@@ -23,6 +23,7 @@ def ppo_train():
     time_step = 0
     i_episodes = 0
     total_rewards, avg_rewards, episodes = [], [], []
+    create_directory(args.ckpt_dir, sub_dirs=['PPO'])
 
     while time_step <= max_training_timesteps:
         total_reward = 0
@@ -54,6 +55,7 @@ def ppo_train():
         print('EP:{} reward:{} avg_reward:{} time_step{}'.
               format(i_episodes, total_reward, avg_reward, time_step))
     
+    agent.save(args.ckpt_dir + 'ppo_{}.pth'.format(i_episodes))
     # plot_learning_curve(episodes, avg_rewards, 'Reward', 'reward', args.reward_path)
     return i_episodes, avg_rewards
 
