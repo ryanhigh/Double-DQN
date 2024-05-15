@@ -4,7 +4,7 @@ import numpy as np
 import argparse
 from DDQN import DDQN
 from PPO import PPO
-from eth_optimize import EthOptimize, getPerformance
+from eth_optimize import EthOptimize, getPerformance, getOrigPerformance
 import matplotlib.pyplot as plt
 from utils import plot_learning_curve, create_directory, plot_validate_performance_curve
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
@@ -14,8 +14,8 @@ os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = envpath
 parser = argparse.ArgumentParser()
 parser.add_argument('--max_episodes', type=int, default=1000)
 parser.add_argument('--ckpt_dir', type=str, default='./Val_n_base/')
-parser.add_argument('--tps_path', type=str, default='./Val_n_base/ppo_10group_tps.png')
-parser.add_argument('--delay_path', type=str, default='./Val_n_base/ppo_10group_delay.png')
+parser.add_argument('--tps_path', type=str, default='./Val_n_base/tps_new4.png')
+parser.add_argument('--delay_path', type=str, default='./Val_n_base/delay_new4.png')
 
 args = parser.parse_args()
 env = EthOptimize()
@@ -36,7 +36,7 @@ def contrast():
     observation = env.reset()
     observation = observation[0]
     x0, y0 = observation
-    perform0 = getPerformance(x0, y0)
+    perform0 = getOrigPerformance(x0, y0)
     tps0, delay0 = perform0
     ddqn_tps_l.append(tps0)
     ppo_tps_l.append(tps0)
@@ -73,7 +73,7 @@ def contrast():
         ddqn_action = agent.choose_action(ddqn_observation, isTrain=False)
         ddqn_observation_, reward, done, info, perform_ = env.step(ddqn_action)
         x, y = ddqn_observation_
-        perform_i = getPerformance(x, y)
+        perform_i = getOrigPerformance(x, y)
         tps_i, delay_i = perform_i
         ddqn_tps_l.append(tps_i)
         ddqn_delay_l.append(delay_i)
@@ -82,21 +82,30 @@ def contrast():
 
     for i in range(timestep):
         if ppo_done:
-            ppo_observation_ = ppo_observation
+            observation_ = observation
+            ppo_x, ppo_y = observation_
+            ppo_perform_i = getOrigPerformance(ppo_x, ppo_y)
+            ppo_tps_i, ppo_delay_i = ppo_perform_i
+            ppo_tps_l.append(ppo_tps_i)
+            ppo_delay_l.append(ppo_delay_i)
+            observation = observation_
         else:
-            ppo_action = agent_ppo.choose_action(ppo_observation)
-            ppo_observation_, ppo_reward, ppo_done, info, perform_ = env.step(ppo_action)
+            action = agent_ppo.choose_action(observation)
+            observation_, ppo_reward, ppo_done, info, perform_ = env.step(action)               
+            ppo_x, ppo_y = observation_
+            ppo_perform_i = getOrigPerformance(ppo_x, ppo_y)
+            ppo_tps_i, ppo_delay_i = ppo_perform_i
+            ppo_tps_l.append(ppo_tps_i)
+            ppo_delay_l.append(ppo_delay_i)
+            observation = observation_
+        print("finish_{}".format(i))
         
-        ppo_x, ppo_y = ppo_observation_
-        ppo_perform_i = getPerformance(ppo_x, ppo_y)
-        ppo_tps_i, ppo_delay_i = ppo_perform_i
-        ppo_tps_l.append(ppo_tps_i)
-        ppo_delay_l.append(ppo_delay_i)
-        ppo_observation = ppo_observation_
 
     time = [i for i in range(timestep+1)]
+    ddqn_delay_second = [item / 1000 for item in ddqn_delay_l]
+    ppo_delay_second = [item / 1000 for item in ppo_delay_l]
     plot_validate_performance_curve(time, ddqn_tps_l, ppo_tps_l, 'TPS', 'tps', args.tps_path)
-    plot_validate_performance_curve(time, ddqn_delay_l, ppo_delay_l, 'Latency', 'latency', args.delay_path)
+    plot_validate_performance_curve(time, ddqn_delay_second, ppo_delay_second, 'Latency', 'latency', args.delay_path)
 
 
 def group10():
@@ -111,7 +120,7 @@ def group10():
         observation = env.reset()
         observation = observation[0]
         x0, y0 = observation
-        perform0 = getPerformance(x0, y0)
+        perform0 = getOrigPerformance(x0, y0)
         tps0, delay0 = perform0
         tps_l.append(tps0)
         delay_l.append(delay0)
@@ -119,7 +128,7 @@ def group10():
             if done:
                 observation_ = observation
                 ppo_x, ppo_y = observation_
-                ppo_perform_i = getPerformance(ppo_x, ppo_y)
+                ppo_perform_i = getOrigPerformance(ppo_x, ppo_y)
                 ppo_tps_i, ppo_delay_i = ppo_perform_i
                 tps_l.append(ppo_tps_i)
                 delay_l.append(ppo_delay_i)
@@ -131,23 +140,24 @@ def group10():
                     observation_ = observation
                                
                 ppo_x, ppo_y = observation_
-                ppo_perform_i = getPerformance(ppo_x, ppo_y)
+                ppo_perform_i = getOrigPerformance(ppo_x, ppo_y)
                 ppo_tps_i, ppo_delay_i = ppo_perform_i
                 tps_l.append(ppo_tps_i)
                 delay_l.append(ppo_delay_i)
                 observation = observation_
             print("finish_{}".format(i))
         
-        plt.plot(time, delay_l, linestyle='-', linewidth = 2, color=color[t], label='ppo_group_{}'.format(t))
+        second_delay = [item / 1000 for item in delay_l]
+        plt.plot(time, second_delay, linestyle='-.', linewidth = 2, color=color[t], label='ppo_group_{}'.format(t))
         Optim_tps = (tps_l[20] - tps0) / tps0
         Optim_delay = (delay0 - delay_l[20]) / delay0
         avg_tps.append(Optim_tps)
         avg_delay.append(Optim_delay)
     
-    plt.legend()
+    plt.legend(loc='best')
     plt.title('10 Group Latency')
     plt.xlabel('time')
-    plt.ylabel('latency')
+    plt.ylabel('latency(s)')
 
     plt.show()
     plt.savefig(args.delay_path)
@@ -157,7 +167,7 @@ def group10():
 
 
 if __name__ == "__main__":
-    group10()
+    contrast()
     # ppo_x, ppo_y = 16650000, 5
     # ppo_perform_i = getPerformance(ppo_x, ppo_y)
     # print(ppo_perform_i)

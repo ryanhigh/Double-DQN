@@ -4,7 +4,17 @@ import numpy as np
 import pandas as pd
 import random
 import math
-from clean_data import Final_Dataframe
+from clean_data import Final_Dataframe, Final_Dataframe_woNorm
+
+def getOrigPerformance(x, y):
+    df_orig = Final_Dataframe_woNorm() 
+    row_indices = df_orig.index[(df_orig['gaslimit'] == x) & (df_orig['period(s)'] == y)].tolist()
+    if not bool(row_indices):
+        print(row_indices, x, y)
+    tps = df_orig['tps(tx/s)'].iloc[row_indices].item()
+    latency = df_orig['latency(ms)'].iloc[row_indices].item()
+    perform = np.array([tps, latency])
+    return perform
 
 df = Final_Dataframe()
 

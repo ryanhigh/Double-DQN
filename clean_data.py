@@ -30,3 +30,8 @@ def Final_Dataframe():
     # print(df.iloc[:, [2, 3]].head(5))
     # print(df_scaled.iloc[:, [2, 3]].head(5))
     return df_scaled
+
+
+def Final_Dataframe_woNorm():
+    df = getDataframe(args.dfpt)
+    return df
